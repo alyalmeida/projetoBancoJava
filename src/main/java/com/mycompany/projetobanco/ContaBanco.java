@@ -1,12 +1,13 @@
 package com.mycompany.projetobanco;
 
 
-public class ContaBanco {
+        
+public class ContaBanco implements CaixaEletronico {
     
     public int numConta; //número da conta bancária 
     protected String tipo;  //tipo de conta. Corrente ou poupança
     private String dono; // O proprietário da conta bancária
-    private float saldo; // Saldo que o proprietário tem no banco.
+    private double saldo; // Saldo que o proprietário tem no banco.
     private boolean status; // Chetar se a conta está aberta ou fechada.
     
     public void estado() {
@@ -19,97 +20,115 @@ public class ContaBanco {
     }
     
     public ContaBanco() { //assim que criada a conta, define a conta como fechada e com saldo 0,00
-        setStatus(false);
-        setSaldo(0);
+        this.setStatus(false);
+        this.setSaldo(0);
 }
     
-    public void abrirConta(String tipo) { 
-        this.setStatus(true);
-        this.setTipo(tipo);
-        if (getTipo() == "cc") {
-            this.setSaldo(50);
-            System.out.println("Sua conta foi criada e você recebeu R$ 50,00 de bônus.");
+    public void abrirConta(int n, String tipo, String dono ){
+        if (this.getStatus()) {
+            System.out.println("ERRO! A conta já está aberta.");
+        } else {
+            this.setTipo(tipo);
+            this.setNumConta(n);
+            this.setDono(dono);
+            double bonus = 0;
+            if (this.getTipo() == "cc") {
+                bonus = 50;
+            } else if (this.getTipo() == "cp") {
+                bonus = 150;
+            }
+            System.out.printf("Sua conta foi aberta e você ganhou %.2f de bonus! %n", bonus);
+            this.setSaldo( bonus);
+            this.setStatus(true);
         }
-        else {
-            this.setSaldo(150);
-            System.out.println("Sua conta foi criada e você recebeu R$ 150,00 de bônus.");
+    }
+    public void fecharConta() {
+        if (this.getStatus()) {
+            if (this.getSaldo() > 0) {
+                System.out.println("Não é possível fechar conta com saldo nela.");
+            } else if (this.getSaldo() < 0) {
+                System.out.println("Não é possível fechar conta com dívida.");
+            } else {
+                this.setStatus(false);
+                System.out.println("Sua conta foi fechada com sucesso!");
+            }
+        } else {
+            System.out.println("A conta já se encontra fechada.");
         }
-        this.setNumConta(numConta);
-        this.setDono(dono);
     }
     
-    public void fecharConta() {
-        if (this.getSaldo() < 0) {
-            System.out.println("Não é possível fechar conta pois consta dívida.");
-        }
-        else if (this.getSaldo() > 0) {
-            System.out.println("Não é possível fechar conta pois há saldo no banco.");
-        }
-        else {
-            this.setStatus(false);
-            System.out.println("Conta devidamente fechada.");
-        }
-        
+    public void checarSaldo() {
+        System.out.printf("boa tarde %s! Você tem %.2f de saldo. %n", this.getDono(), this.getSaldo());
     }
-    public void depositar(double valor) {
-        this.setSaldo(this.getSaldo() + (float) valor);
-        System.out.printf("Foi depositado %.2f na sua conta. Agora você tem %.2f de saldo \n",valor, getSaldo());
-    }
+    
     public void sacar(double valor) {
-        if (valor > this.getSaldo()) {
-            System.out.println("Você não tem saldo suficiente para este saque.");
+        if (this.getStatus() && this.getSaldo() >= valor) {
+            this.setSaldo(this.getSaldo() - valor);
+            System.out.printf("Foi sacado %.2f com sucesso! %n", valor);
+            System.out.printf("Agora você tem %.2f de saldo %n", getSaldo());
+        } else {
+            System.out.println("Não foi possível realizar o saque pois a conta está fechada.%n");
         }
-        else {
-            this.setSaldo(this.getSaldo() - (float) valor);
-            System.out.printf("Saque realizado! Seu saldo atual é %.2f \n", this.getSaldo());
+    }
+    public void depositar(double valor){
+        if (this.getStatus()) {
+            this.setSaldo(this.getSaldo() + valor);
+            System.out.printf("Foi depositado %.2f com sucesso! %n", valor);
+            System.out.printf("Agora você tem %.2f de saldo %n", getSaldo());
+        } else {
+            System.out.println("Não foi possível realizar o depósito pois a conta está fechada.%n");
         }
     }
     public void pagarMensal() {
-        if (this.getTipo() == "cc") {
-            this.setSaldo((int) this.getSaldo() - 12);
-            System.out.printf("Mensalidade paga! Seu saldo atual é %.2f \n", this.getSaldo());
-        }
-        else {
-            this.setSaldo((int) this.getSaldo() - 20);
-            System.out.printf("Mensalidade paga! Seu saldo atual é %.2f \n", this.getSaldo());
+        if (this.getStatus()) {
+            double mensalidade = 0;
+            if (this.getTipo() == "cc") {
+                mensalidade = 20;
+            } else if (this.getTipo() == "cp") {
+                mensalidade = 50;
+            }
+            this.setSaldo(this.getSaldo() - mensalidade);
+            System.out.printf("Foi pago o falor de R$ %.2f de mensalidade. %n", mensalidade);
+            System.out.printf("Você tem R$ %.2f de saldo%n", this.getSaldo());
         }
     }
     
-    public void setNumConta(int n) {
+    private void setNumConta(int n) {
         this.numConta = n;
     }
-    public int getNumConta() {
+    private int getNumConta() {
         return this.numConta;
     }
     
-    public void setTipo(String t) {
+    private void setTipo(String t) {
         this.tipo = t;
     }
-    public String getTipo() {
+    private String getTipo() {
         return this.tipo;
     }
     
-    public void setDono(String d) {
+    private void setDono(String d) {
         this.dono = d;
     }
-    public String getDono() {
+    private String getDono() {
         return this.dono;
     }
     
-    public void setSaldo(double s) {
-        this.saldo = (float) s;
+    private void setSaldo(double s) {
+        this.saldo = s;
     }
-    public float getSaldo(){
+    private double getSaldo(){
         return this.saldo;
     }
     
-    public void setStatus(boolean status) {
+    private void setStatus(boolean status) {
         this.status = status;
     }
-    public boolean getStatus() {
+    private boolean getStatus() {
         return this.status;
     }
-    
 }
+
+
 
  
